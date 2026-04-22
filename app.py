@@ -1,24 +1,24 @@
 import streamlit as st
 from groq import Groq
 
-st.set_page_config(page_title="Asesor Docente GTO", page_icon="🏫")
+st.set_page_config(page_title="Asesor Docente GTO", page_icon="🏫", layout="centered")
 
-# 1. DIAGNÓSTICO DE SECRETOS
+# Estilo visual tipo Tarjeta
+st.markdown("""
+    <style>
+    .stChatMessage { background-color: #f0f2f6; border-radius: 15px; padding: 15px; margin-bottom: 10px; }
+    .stMarkdown h3 { color: #1E3A8A; border-bottom: 2px solid #1E3A8A; }
+    </style>
+    """, unsafe_allow_html=True)
+
 if "GROQ_API_KEY" not in st.secrets:
-    st.error("❌ ERROR: No encuentro la palabra 'GROQ_API_KEY' en tus Secrets.")
-    st.info("Ve a Manage App -> Settings -> Secrets y asegúrate de que la primera línea diga exactamente: GROQ_API_KEY = 'tu_llave'")
+    st.error("Falta configurar la API Key.")
     st.stop()
 
-# 2. INICIALIZAR CLIENTE
-try:
-    # Usamos la llave que pusiste en Secrets
-    client = Groq(api_key=st.secrets["GROQ_API_KEY"])
-except Exception as e:
-    st.error(f"❌ ERROR AL INICIAR MOTOR: {e}")
-    st.stop()
+client = Groq(api_key=st.secrets["GROQ_API_KEY"])
 
 st.title("🏫 Asesor Docente GTO")
-st.caption("Asesoría Legal - Guanajuato")
+st.markdown("#### Consultoría Legal • Sostenimiento Federal • Sección 13")
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -27,18 +27,17 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-if prompt := st.chat_input("Escribe tu duda aquí..."):
+if prompt := st.chat_input("Ej: ¿Es legal que me nieguen un económico en CTE?"):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
 
     with st.chat_message("assistant"):
         try:
-            # Usamos un modelo muy rápido y estable
             chat_completion = client.chat.completions.create(
                 model="llama-3.1-8b-instant",
                 messages=[
-                    {"role": "system", "content": st.secrets.get("SYSTEM_PROMPT", "Eres un asesor legal.")},
+                    {"role": "system", "content": st.secrets["SYSTEM_PROMPT"]},
                     * [{"role": m["role"], "content": m["content"]} for m in st.session_state.messages]
                 ]
             )
@@ -46,5 +45,4 @@ if prompt := st.chat_input("Escribe tu duda aquí..."):
             st.markdown(response)
             st.session_state.messages.append({"role": "assistant", "content": response})
         except Exception as e:
-            st.error(f"❌ ERROR DE RESPUESTA: {e}")
-            st.warning("Verifica que tu llave de Groq sea válida y no tenga espacios.")
+            st.error(f"Error: {e}")
