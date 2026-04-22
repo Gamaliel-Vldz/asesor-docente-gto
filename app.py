@@ -43,7 +43,7 @@ if prompt := st.chat_input("Escribe tu duda legal aquí..."):
         try:
             # Llamada al modelo inteligente 70B
             chat_completion = client.chat.completions.create(
-                model="llama-3.1-70b-versatile",
+                model="llama-3.3-70b-versatile",
                 messages=[
                     {"role": "system", "content": st.secrets["SYSTEM_PROMPT"]},
                     * [{"role": m["role"], "content": m["content"]} for m in st.session_state.messages]
