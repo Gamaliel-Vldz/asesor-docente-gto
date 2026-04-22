@@ -34,8 +34,8 @@ if prompt := st.chat_input("Ej: ¿Es legal que me nieguen un económico en CTE?"
 
     with st.chat_message("assistant"):
         try:
-            chat_completion = client.chat.completions.create(
-                model="llama-3.1-8b-instant",
+          chat_completion = client.chat.completions.create(
+                model="llama-3.1-70b-versatile",  # <--- Este es el cambio clave
                 messages=[
                     {"role": "system", "content": st.secrets["SYSTEM_PROMPT"]},
                     * [{"role": m["role"], "content": m["content"]} for m in st.session_state.messages]
